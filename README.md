@@ -1,5 +1,5 @@
-# Ubuntu 26 MacBook Pro A1706
-This repo is dedicated to explanation of the MacBook Pro A1706 config for Ubintu 26. 
+# Ubuntu 26 MacBook Pro A1706 (13,2)
+This repo is dedicated to explanation of the MacBook Pro A1706 config for Ubuntu 26. 
 
 ## WiFi Fix for Broadcom 43602
 Just after installation I have noticed that the wifi does see 2,4 GHz networks, however cannot connect to any of them. 
@@ -30,7 +30,7 @@ Now you should be able to connect to 5GHz networks, still network strength is to
 
 ## Audio fix
 
-Below instruction worked for me in first attempt. After the reboot I could finally liesten to music.
+Below instruction worked for me after first attempt. After the reboot I could finally liesten to music.
 
 ```bash
 git clone https://github.com/davidjo/snd_hda_macbookpro.git
@@ -38,8 +38,9 @@ cd snd_hda_macbookpro/
 sudo ./install.cirrus.driver.sh
 sudo reboot
 ```
+\
 
-## Touchbar driver build and install
+## Touchbar drivers - build and install
 
 ### Import of Ronald Tschalär's Macbook T1 drivers for the touchbar, ambient light sensor, and webcam, for kernel v7
 Download the zip file with the code\
