@@ -159,3 +159,69 @@ Expected result:
 - If you rebuild the drivers, repeat `make`, `sudo make install`, and optionally `sudo update-initramfs -u`.
 - If the touch bar stops working after a reboot, run the helper script again.
 - If you want to restore ALS support, remove or modify the blacklist file.
+
+
+## Problems with wakeing up from the suspended state
+
+I have been having an issue with my laptop freshly after installation of the system. 
+Whenever I suspended it/closed the lid, it's been taking a lot of time to wake up (2 minutes of black screen) and after the screen went live, I was unable to type my password. I had to force shutdown each time by holding power button.
+
+This was apparently caused by NVME not properly waking up.\ 
+Fixed it following this procedure: 
+### Create a service which starts up on boot
+
+```bash
+sudo nano /etc/systemd/system/fix_sleep.service
+```
+In the file, add these lines:
+```bash
+# systemd oneshot service to set sleep boolean on Apple Macbook Pro disks
+# Original by Pier Lim. Posted at https://kerpanic.wordpress.com/2018/03/13/apple-keyboard-get-function-keys-working-properly-in-ubuntu/
+
+[Unit]
+Description=Job that disables sleep from stopping nvme hardware on MBP
+    
+[Service]
+ExecStart=/sbin/fixsleep
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+Save the changes (CTRL+O->Enter) and exit (CTRL+X)
+
+Now, before adding below lines please check your NVMe drive data by running:
+```bash
+lspci | grep -i nvme
+```
+I have got something like:\
+01:00.0 Mass storage controller: Apple Inc. S3X NVMe Controller (rev 12)\
+If your nvme location is different, you need to adjust it in the script below.
+
+Next create /sbin/fixsleep script
+```bash
+sudo nano /sbin/fixsleep 
+```
+Content:
+```bash
+#!/bin/bash
+/bin/echo 0 > /sys/bus/pci/devices/0000\:01\:00.0/d3cold_allowed
+```
+
+Save the changes (CTRL+O->Enter) and exit (CTRL+X)
+
+
+
+Make the file executable 
+```bash
+sudo chmod +x /sbin/fixsleep 
+```
+
+Now you can reload daemon and run your service to test whether everything works as expected:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start fix_sleep.service
+```
+
+Thanks to this now my laptop wakes up from the syspension within 10 seconds and I am able to sign in and continue my work.
